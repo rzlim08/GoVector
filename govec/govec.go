@@ -242,6 +242,7 @@ func InitGoVectorMultipleExecutions(processid string, logfilename string) *GoLog
 		gv.logger.Println("Execution Number is  ", executionnumber)
 		executionstring := "=== Execution #" + strconv.Itoa(executionnumber) + "  ==="
 		gv.LogThis(executionstring, "", "")
+		gv.LogThis("Adding Process", gv.pid, vc1.ReturnVCString())
 	} else {
 		//Creating new Log
 		file, err := os.Create(logname)
@@ -249,9 +250,10 @@ func InitGoVectorMultipleExecutions(processid string, logfilename string) *GoLog
 			gv.logger.Println(err.Error())
 		}
 		file.Close()
-
+		ok := gv.WriteToFile("(?<host>\\S*) (?<clock>{.*})\\n(?<event>.*)")
+		ok = gv.WriteToFile("^=== (?<trace>.*) ===$")
 		//Mark Execution Number
-		ok := gv.LogThis("=== Execution #1 ===", " ", " ")
+		ok = gv.LogThis("=== Execution #1 ===", " ", " ")
 		//Log it
 		ok = gv.LogThis("Initialization Complete", gv.pid, vc1.ReturnVCString())
 		if ok == false {
@@ -408,6 +410,29 @@ func (gv *GoLog) LogThis(Message string, ProcessID string, VCString string) bool
 	buffer.WriteString(" ")
 	buffer.WriteString(VCString)
 	buffer.WriteString("\n")
+	buffer.WriteString(Message)
+	buffer.WriteString("\n")
+	output := buffer.String()
+
+	file, err := os.OpenFile(gv.logfile, os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		complete = false
+	}
+	defer file.Close()
+
+	if _, err = file.WriteString(output); err != nil {
+		complete = false
+	}
+	if gv.printonscreen == true {
+		gv.logger.Println(output)
+	}
+	return complete
+
+}
+
+func (gv *GoLog) WriteToFile(Message string) bool {
+	complete := true
+	var buffer bytes.Buffer
 	buffer.WriteString(Message)
 	buffer.WriteString("\n")
 	output := buffer.String()
@@ -595,3 +620,4 @@ func (gv *GoLog) EnableLogging() {
 func (gv *GoLog) DisableLogging() {
 	gv.logging = false
 }
+
