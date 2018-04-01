@@ -208,8 +208,8 @@ func InitGoVectorMultipleExecutions(processid string, logfilename string) *GoLog
 	}
 
 	//# These are bools that can be changed to change debuging nature of library
-	gv.printonscreen = true //(ShouldYouSeeLoggingOnScreen)
-	gv.debugmode = true     // (Debug)
+	gv.printonscreen = false //(ShouldYouSeeLoggingOnScreen)
+	gv.debugmode = false     // (Debug)
 	gv.EnableLogging()
 
 	// Use the default encoder/decoder. As of July 2017 this is msgPack.
@@ -621,3 +621,10 @@ func (gv *GoLog) DisableLogging() {
 	gv.logging = false
 }
 
+func (gv *GoLog) EnableDebugMode(){
+        gv.debugmode = true
+}
+
+func (gv *GoLog) DisableDebugMode(){
+        gv.debugmode = false
+}
